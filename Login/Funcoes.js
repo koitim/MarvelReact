@@ -1,7 +1,3 @@
-export function validaNome(nome) {
-  return !(nome == null || nome.trim() == "");
-}
-
 export function validaEmail(email) {
   return (/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/).test(email);
 }

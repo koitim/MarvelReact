@@ -17,7 +17,8 @@ export default class InputCustomizado extends Component {
                     style={this.props.style}
                     placeholder={this.props.label}
                     value={this.props.value}
-                    onChangeText={this.props.onChange}/>
+                    onChangeText={this.props.onChange}
+                    secureTextEntry={this.props.senha} />
             </View>
         );
     }

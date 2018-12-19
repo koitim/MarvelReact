@@ -14,11 +14,14 @@ import {
 import InputCustomizado from '../componentes/InputCustomizado';
 import BotaoCustomizado from '../componentes/BotaoCustomizado';
 import LogoMarvel from '../componentes/LogoMarvel';
+import {
+  inicializarServicos
+} from '../Service/Index'
 
 export default class Login extends React.Component {
   
   static navigationOptions = {
-    title: 'Login Marvel',
+    title: 'Login',
   };
 
   constructor() {
@@ -27,7 +30,7 @@ export default class Login extends React.Component {
   }
 
   componentWillMount() {
-    inicializeFirebase();
+    inicializarServicos();
   }
 
   login() {

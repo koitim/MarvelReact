@@ -39,12 +39,6 @@ const styles = StyleSheet.create({
         flexDirection:'row',
         marginBottom: 2
     },
-    item2: {
-      flex: 1,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: 'space-between',
-    },
     texto: {
         color:'#FFF',
         fontSize:20

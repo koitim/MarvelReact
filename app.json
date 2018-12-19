@@ -8,7 +8,7 @@
     "platforms": ["ios", "android"],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icone-marvel.png",
     "splash": {
       "image": "./assets/marvel-logo.png",
       "resizeMode": "contain",

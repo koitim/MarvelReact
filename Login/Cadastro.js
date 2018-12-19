@@ -4,18 +4,17 @@ import {
   View
 } from 'react-native';
 import {
-  validaNome,
   validaEmail,
   validaSenha,
   validaConfirmacaoSenha
 } from './Funcoes'
-import {
-  inicializeFirebase,
-  cadastrarUsuario
-} from '../Service/Firebase';
 import InputCustomizado from '../componentes/InputCustomizado';
 import BotaoCustomizado from '../componentes/BotaoCustomizado';
 import LogoMarvel from '../componentes/LogoMarvel';
+import {
+  inicializarServicos,
+  criarUsuario
+} from '../Service/Index';
 
 
 export default class Cadastro extends React.Component {
@@ -30,19 +29,12 @@ export default class Cadastro extends React.Component {
   }
 
   componentWillMount() {
-    inicializeFirebase();
+    inicializarServicos();
   }
 
   cadastrar = async () => {
-    const {nome, email, senha, confirmaSenha} = this.state;
+    const {email, senha, confirmaSenha} = this.state;
     let contemErros = false;
-    if (validaNome(nome)) {
-      this.atualizaNome(styles.input, '');
-    }
-    else {
-      this.atualizaNome(styles.inputError, 'Nome inválido.');
-      contemErros = true;
-    }
     if (validaEmail(email)) {
       this.atualizaEmail(styles.input, '');
     }
@@ -65,7 +57,7 @@ export default class Cadastro extends React.Component {
       contemErros = true;
     }
     if (!contemErros) {
-      cadastrarUsuario(email, senha)
+      criarUsuario(email, senha)
         .then(() => {
           alert("Usuário cadastrado com sucesso.");
           this.setState(dadosIniciais);
@@ -79,13 +71,6 @@ export default class Cadastro extends React.Component {
 
   voltar = () => {
     this.props.navigation.goBack();
-  }
-
-  atualizaNome = (estilo, msgErro) => {
-    this.setState({
-      estiloInputNome: estilo,
-      msgErroNome: msgErro
-    });
   }
 
   atualizaEmail = (estilo, msgErro) => {
@@ -113,13 +98,6 @@ export default class Cadastro extends React.Component {
     return (
       <View style={styles.container}>
         <LogoMarvel />
-        <InputCustomizado
-          msgErro={this.state.msgErroNome}
-          style={this.state.estiloInputNome}
-          label="Digite seu nome"
-          value={this.state.nome}
-          onChange={nome => this.setState({nome})}
-        />
         <InputCustomizado
           msgErro={this.state.msgErroEmail}
           style={this.state.estiloInputEmail}
@@ -176,15 +154,12 @@ const styles = StyleSheet.create({
 });
 
 const dadosIniciais = {
-  nome: '',
   email: '',
   senha: '',
   confirmaSenha: '',
-  estiloInputNome: styles.input,
   estiloInputEmail: styles.input,
   estiloInputSenha: styles.input,
   estiloInputConfirmaSenha: styles.input,
-  msgErroNome: '',
   msgErroEmail: '',
   msgErroSenha: '',
   msgErroConfirmaSenha: ''
