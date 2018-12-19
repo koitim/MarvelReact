@@ -26,6 +26,7 @@ export default class Principal extends Component {
     constructor() {
         super();
         this.state = {
+            listaFavoritos:false,
             personagens:[]
         }
     }
@@ -53,6 +54,10 @@ export default class Principal extends Component {
         this.props.navigation.navigate('Inicio');
     }
 
+    voltar(){
+        this.recuperarPersonagens();
+    }
+
     detalharPersonagem = (id) => {
         this.props.navigation.navigate('Detalhar', {idPersonagem:id});
     }
@@ -73,6 +78,7 @@ export default class Principal extends Component {
                 })
             });
             this.setState({
+                listaFavoritos:false,
                 personagens:listaPersonagens
             })
         } catch (error) {
@@ -98,6 +104,7 @@ export default class Principal extends Component {
                 });
             }
             this.setState({
+                listaFavoritos:true,
                 personagens:listaPersonagens
             })
         } catch (error) {
@@ -105,7 +112,7 @@ export default class Principal extends Component {
         }
     }
 
-    async recuperarIdsFavoritos()  {
+    async recuperarFavoritos()  {
         getFavoritos(this.recuperarDadosFavoritos.bind(this));
     }
   
@@ -117,8 +124,12 @@ export default class Principal extends Component {
                     renderItem={(itemlista) => <ItemPersonagem personagem={itemlista.item} onPress={this.detalharPersonagem.bind(this)}/>}>
                 </FlatList>
                 <View style={styles.containerBotoes}>
-                    <BotaoCustomizado texto='Favoritos' onPress = {this.recuperarIdsFavoritos.bind(this)}/>
-                    <BotaoCustomizado texto='Sair' onPress = {this.sair.bind(this)} />
+                    <BotaoCustomizado texto='Favoritos' onPress = {this.recuperarFavoritos.bind(this)}/>
+                    {this.state.listaFavoritos ? 
+                        <BotaoCustomizado texto='Voltar' onPress = {this.voltar.bind(this)} /> :
+                        <BotaoCustomizado texto='Sair' onPress = {this.sair.bind(this)} />
+                    }
+                    
                 </View>
             </View>
         );
