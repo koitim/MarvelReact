@@ -1,20 +1,20 @@
 import React from 'react';
 import {
-  StyleSheet,
   View
 } from 'react-native';
 import {
   validaEmail,
   validaSenha,
   validaConfirmacaoSenha
-} from './Funcoes'
+} from './Funcoes';
 import InputCustomizado from '../componentes/InputCustomizado';
 import BotaoCustomizado from '../componentes/BotaoCustomizado';
-import LogoMarvel from '../componentes/LogoMarvel';
+import LogoMarvel       from '../componentes/LogoMarvel';
 import {
   inicializarServicos,
   criarUsuario
 } from '../Service/Index';
+import {styles} from './Estilos';
 
 
 export default class Cadastro extends React.Component {
@@ -104,6 +104,7 @@ export default class Cadastro extends React.Component {
           label="Digite seu e-mail"
           value={this.state.email}
           onChange={email => this.setState({email})}
+          senha={false}
         />
         <InputCustomizado
           msgErro={this.state.msgErroSenha}
@@ -111,6 +112,7 @@ export default class Cadastro extends React.Component {
           label="Digite sua senha"
           value={this.state.senha}
           onChange={senha => this.setState({senha})}
+          senha={true}
         />
         <InputCustomizado
           msgErro={this.state.msgErroConfirmaSenha}
@@ -118,6 +120,7 @@ export default class Cadastro extends React.Component {
           label="Confirme sua senha"
           value={this.state.confirmaSenha}
           onChange={confirmaSenha => this.setState({confirmaSenha})}
+          senha={true}
         />
         <BotaoCustomizado texto="Cadastrar" onPress = {this.cadastrar} />
         <BotaoCustomizado texto="Voltar" onPress = {this.voltar} />
@@ -125,33 +128,6 @@ export default class Cadastro extends React.Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#333',
-    padding: 20
-  },
-  input: {
-    height: 45,
-    backgroundColor: '#FFF',
-    alignSelf: 'stretch',
-    borderColor: '#EEE',
-    borderWidth: 1,
-    marginBottom: 10
-  },
-  inputError: {
-    height: 45,
-    backgroundColor: '#FFF',
-    alignSelf: 'stretch',
-    borderColor: '#F00',
-    borderWidth: 2,
-    paddingHorizontal: 20,
-    marginBottom: 10
-  }
-});
 
 const dadosIniciais = {
   email: '',

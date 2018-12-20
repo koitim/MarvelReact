@@ -1,8 +1,11 @@
-
-import firebase from 'firebase';
 import {
   inicializeFirebase,
-  cadastrarUsuario
+  cadastrarUsuario,
+  logar,
+  isFavorito,
+  favoritar,
+  logout,
+  getFavoritos
 } from '../Service/Firebase';
 
 // Geral
@@ -15,142 +18,85 @@ export function criarUsuario(email, senha) {
   return cadastrarUsuario(email, senha);
 }
 
-export async function getUsuarioAtual() {
-  return await firebase.auth().currentUser;
+export function entrar(email, senha) {
+  return logar(email, senha);
 }
 
-export function logar(email, senha) {
-  return firebase.auth().signInWithEmailAndPassword(email, senha);
+export function sair() {
+  return logout();
 }
 
-export function logout() {
-  return firebase.auth().signOut();
+//Marvel
+export async function getPersonagem(id, callBackFavorito)  {
+  try {
+      isFavorito(id, callBackFavorito);
+      const url = `https://gateway.marvel.com/v1/public/characters/${id}?ts=1&apikey=551148f586658804f0469ff9d7281d31&hash=d293e3579029a89690636ea7069b6600`;
+      const resultado = await fetch(url);
+      const resultadoJSON = await resultado.json();
+      const personagemJSON = resultadoJSON.data.results;
+      let listaPersonagens = [];
+      personagemJSON.forEach(personagem => {
+          listaPersonagens.push({
+              nome:personagem.name,
+              descricao:personagem.description,
+              imagem:`${personagem.thumbnail.path}.${personagem.thumbnail.extension}`
+          })
+      });
+      return listaPersonagens[0];
+  } catch (error) {
+      console.error('erro:' + error);
+      return null;
+  }
 }
 
-// Banco de dados
+export function favoritarPersonagem(id){
+  favoritar(id);
+}
 
-export function favoritar(id){
-  const idUsuario = firebase.auth().currentUser.uid;
-  firebase
-    .database()
-    .ref()
-    .child(BD)
-    .child(idUsuario)
-    .child(id)
-    .once('value')
-      .then( function(snapshot) {
-        if (snapshot.exists()) {
-          firebase
-            .database()
-            .ref()
-            .child(BD)
-            .child(idUsuario)
-            .child(id)
-            .remove(); 
-        } else {
-          firebase
-            .database()
-            .ref()
-            .child(BD)
-            .child(idUsuario)
-            .child(id)
-            .set(id); 
+export async function getPersonagens()  {
+    try {
+        const url = "https://gateway.marvel.com/v1/public/characters?ts=1&apikey=551148f586658804f0469ff9d7281d31&hash=d293e3579029a89690636ea7069b6600";
+        const resultado = await fetch(url);
+        const resultadoJSON = await resultado.json();
+        const personagensJSON = resultadoJSON.data.results;
+        let listaPersonagens = [];
+        personagensJSON.forEach(personagem => {
+            listaPersonagens.push({
+                id:personagem.id,
+                nome:personagem.name,
+                imagem:`${personagem.thumbnail.path}.${personagem.thumbnail.extension}`
+            })
+        });
+        return listaPersonagens;
+    } catch (error) {
+        console.error('erro:' + error);
+    }
+}
+
+export function getPersonagensFavoritos(callBackFavoritos){
+  getFavoritos(callBackFavoritos);
+}
+
+export async function recuperarDadosPersonagensFavoritos(favoritos) {
+    try {
+        let listaPersonagens = [];
+        for (let i = 0; i < favoritos.length; i++) {
+            const idFavorito = favoritos[i];
+            const url = `https://gateway.marvel.com/v1/public/characters/${idFavorito}?ts=1&apikey=551148f586658804f0469ff9d7281d31&hash=d293e3579029a89690636ea7069b6600`;
+            const resultado = await fetch(url);
+            const resultadoJSON = await resultado.json();
+            const personagensJSON = resultadoJSON.data.results;
+            personagensJSON.forEach(personagem => {
+                listaPersonagens.push({
+                    id:personagem.id,
+                    nome:personagem.name,
+                    imagem:`${personagem.thumbnail.path}.${personagem.thumbnail.extension}`
+                })
+            });
         }
-      });
-};
-
-export function temFavoritos(){
-  const idUsuario = firebase.auth().currentUser.uid;
-  firebase
-    .database()
-    .ref()
-    .child(BD)
-    .child(idUsuario)
-    .once('value')
-      .then( function(snapshot) {
-        if (snapshot.exists()) {
-          console.log('tem favoritos');
-        } else {
-          console.log('não tem favoritos');
-        }
-        return snapshot.exists();
-      });
-};
-
-export function getFavoritos(callBackFavoritos){
-  const idUsuario = firebase.auth().currentUser.uid;
-  firebase
-    .database()
-    .ref()
-    .child(BD)
-    .child(idUsuario)
-    .once('value')
-      .then( function(snapshot) {
-        let favoritos = [];
-        if (snapshot.exists()) {
-          snapshot.forEach(childSnapshot => {
-            console.log(childSnapshot.key);
-            console.log(childSnapshot.val());
-              favoritos.push(childSnapshot.val());
-          });
-        }
-        callBackFavoritos(favoritos)
-      });
-};
-
-export function isFavorito(id, callBackFavorito){
-  const idUsuario = firebase.auth().currentUser.uid;
-  firebase
-    .database()
-    .ref()
-    .child(BD)
-    .child(idUsuario)
-    .child(id)
-    .once('value')
-      .then( function(snapshot) {
-        callBackFavorito(snapshot.exists());
-      });
-};
-
-function encontrouPersonagem(snapshot) {
-  
+        return listaPersonagens;
+    } catch (error) {
+        console.error('erro:' + error);
+        return null;
+    }
 }
-
-function naoEncontrouPersonagem(snapshot) {
-  
-}
-
-export function recuperarRanking(callBack) {
-  firebase
-    .database()
-    .ref()
-    .child(BD)
-    .on('value', function(snapshot) {
-      let usuarios = [];
-      snapshot.forEach(childSnapshot => {
-          usuarios.push(childSnapshot.val());
-      });
-      callBack(usuarios);
-    })
-}
-
-function getDataAtualFormatada() {
-  const data = new Date();
-  const dia  = data.getDate().toString()
-  const diaF = (dia.length == 1) ? '0' + dia : dia
-  const mes  = (data.getMonth() + 1).toString()
-  const mesF = (mes.length == 1) ? '0' + mes : mes
-  const anoF = data.getFullYear();
-  return diaF + "/" + mesF + "/" + anoF;
-}
-
-const BD = 'PersonagensFavoritos';
-
-const conexaoFirebase = {
-  apiKey: "AIzaSyBR1IBrNvsNmxOzDSe517Y0dAUjC-7eZEc",
-  authDomain: "marvelreact-73206.firebaseapp.com",
-  databaseURL: "https://marvelreact-73206.firebaseio.com",
-  projectId: "marvelreact-73206",
-  storageBucket: "",
-  messagingSenderId: "925472148637"
-};

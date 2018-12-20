@@ -4,7 +4,7 @@ import {
     StyleSheet,
     Text,
     TextInput
-  } from 'react-native';
+} from 'react-native';
   
 
 export default class InputCustomizado extends Component {
@@ -36,4 +36,4 @@ const styles = StyleSheet.create({
         color: '#F00',
         fontWeight: 'bold'
     }
-  });
+});

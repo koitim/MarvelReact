@@ -1,20 +1,18 @@
 import React, { Component } from 'react';
+import ItemPersonagem       from '../componentes/ItemPersonagem';
+import BotaoCustomizado     from '../componentes/BotaoCustomizado';
 import {
     View,
-    Image,
-    Text,
     StyleSheet,
     FlatList
 } from 'react-native';
-import ItemPersonagem from '../componentes/ItemPersonagem';
-import BotaoCustomizado from '../componentes/BotaoCustomizado';
 import {
-    logout,
-    inicializeFirebase,
-    temFavoritos,
-    getFavoritos
-} from '../Service/Firebase';
-//import {recuperarPersonagens} from '../Service/MarvelService'
+  inicializarServicos,
+  getPersonagens,
+  sair,
+  getPersonagensFavoritos,
+  recuperarDadosPersonagensFavoritos
+} from '../Service/Index';
   
 
 export default class Principal extends Component {
@@ -31,89 +29,38 @@ export default class Principal extends Component {
         }
     }
 
-    async componentWillMount() {
-      inicializeFirebase();
-      this.recuperarPersonagens();
+    componentWillMount() {
+        inicializarServicos();
+        this.listarPersonagens();
     }
 
-    ordenarResultado = (resultado) => {
-        const resultadoOrdenado = resultado.sort((a, b) => {
-            if (a.pontuacao > b.pontuacao) {
-              return -1;
-            }
-            if (a.pontuacao < b.pontuacao) {
-              return 1;
-            }
-            return 0;
-          });
-        this.setState({ranking: resultadoOrdenado});
-    }
-
-    sair(){
-        logout()
+    sairApp(){
+        sair();
         this.props.navigation.navigate('Inicio');
     }
 
-    voltar(){
-        this.recuperarPersonagens();
+    async listarPersonagens(){
+        const listaPersonagens = await getPersonagens();
+        this.setState({
+            listaFavoritos:false,
+            personagens:listaPersonagens
+        });
     }
 
     detalharPersonagem = (id) => {
         this.props.navigation.navigate('Detalhar', {idPersonagem:id});
     }
 
-    async recuperarPersonagens()  {
-        try {
-
-            const url = "https://gateway.marvel.com/v1/public/characters?ts=1&apikey=551148f586658804f0469ff9d7281d31&hash=d293e3579029a89690636ea7069b6600";
-            const resultado = await fetch(url);
-            const resultadoJSON = await resultado.json();
-            const personagensJSON = resultadoJSON.data.results;
-            let listaPersonagens = [];
-            personagensJSON.forEach(personagem => {
-                listaPersonagens.push({
-                    id:personagem.id,
-                    nome:personagem.name,
-                    imagem:`${personagem.thumbnail.path}.${personagem.thumbnail.extension}`
-                })
-            });
-            this.setState({
-                listaFavoritos:false,
-                personagens:listaPersonagens
-            })
-        } catch (error) {
-            console.error('erro:' + error);
-        }
-    }
-
     recuperarDadosFavoritos = async (favoritos) => {
-        try {
-            let listaPersonagens = [];
-            for (let i = 0; i < favoritos.length; i++) {
-                const idFavorito = favoritos[i];
-                const url = `https://gateway.marvel.com/v1/public/characters/${idFavorito}?ts=1&apikey=551148f586658804f0469ff9d7281d31&hash=d293e3579029a89690636ea7069b6600`;
-                const resultado = await fetch(url);
-                const resultadoJSON = await resultado.json();
-                const personagensJSON = resultadoJSON.data.results;
-                personagensJSON.forEach(personagem => {
-                    listaPersonagens.push({
-                        id:personagem.id,
-                        nome:personagem.name,
-                        imagem:`${personagem.thumbnail.path}.${personagem.thumbnail.extension}`
-                    })
-                });
-            }
-            this.setState({
-                listaFavoritos:true,
-                personagens:listaPersonagens
-            })
-        } catch (error) {
-            console.error('erro:' + error);
-        }
+        const listaPersonagens = await recuperarDadosPersonagensFavoritos(favoritos);
+        this.setState({
+            listaFavoritos:true,
+            personagens:listaPersonagens
+        });
     }
 
-    async recuperarFavoritos()  {
-        getFavoritos(this.recuperarDadosFavoritos.bind(this));
+    recuperarFavoritos()  {
+        getPersonagensFavoritos(this.recuperarDadosFavoritos.bind(this));
     }
   
     render() {
@@ -126,10 +73,9 @@ export default class Principal extends Component {
                 <View style={styles.containerBotoes}>
                     <BotaoCustomizado texto='Favoritos' onPress = {this.recuperarFavoritos.bind(this)}/>
                     {this.state.listaFavoritos ? 
-                        <BotaoCustomizado texto='Voltar' onPress = {this.voltar.bind(this)} /> :
-                        <BotaoCustomizado texto='Sair' onPress = {this.sair.bind(this)} />
+                        <BotaoCustomizado texto='Voltar' onPress = {this.listarPersonagens.bind(this)} /> :
+                        <BotaoCustomizado texto='Sair' onPress = {this.sairApp.bind(this)} />
                     }
-                    
                 </View>
             </View>
         );
@@ -147,7 +93,3 @@ const styles = StyleSheet.create({
         justifyContent: 'space-evenly',
     }
 });
-
-const apikey = '551148f586658804f0469ff9d7281d31';
-const chavePrivada = 'db9f4d51fdc457995ce2e8b708e66462a439ba7a';
-const chavePublica = '551148f586658804f0469ff9d7281d31';

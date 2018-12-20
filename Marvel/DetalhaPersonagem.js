@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import BotaoCustomizado from '../componentes/BotaoCustomizado';
 import {
     View,
     StyleSheet,
@@ -6,12 +7,11 @@ import {
     Image,
     TouchableOpacity
   } from 'react-native';
-  import BotaoCustomizado from '../componentes/BotaoCustomizado';
   import {
-    inicializeFirebase,
-    favoritar,
-    isFavorito
-  } from '../Service/Firebase';
+    inicializarServicos,
+    getPersonagem,
+    favoritarPersonagem
+  } from '../Service/Index';
   
 
 export default class DetalhaPersonagem extends Component {
@@ -24,7 +24,7 @@ export default class DetalhaPersonagem extends Component {
         super(props);
         const idPersonagem = this.props.navigation.getParam('idPersonagem');
         this.state = {
-            favorito:false,
+            isFavorito:false,
             id:idPersonagem,
             personagem:{
                 nome:'',
@@ -35,37 +35,16 @@ export default class DetalhaPersonagem extends Component {
     }
 
     async componentWillMount() {
-      inicializeFirebase();
-      this.recuperarPersonagem();
-    }
-
-    async recuperarPersonagem()  {
-        const {id} = this.state;
-        try {
-            await isFavorito(id, this.defineFavorito);
-            const url = `https://gateway.marvel.com/v1/public/characters/${id}?ts=1&apikey=551148f586658804f0469ff9d7281d31&hash=d293e3579029a89690636ea7069b6600`;
-            const resultado = await fetch(url);
-            const resultadoJSON = await resultado.json();
-            const personagemJSON = resultadoJSON.data.results;
-            let listaPersonagens = [];
-            personagemJSON.forEach(personagem => {
-                listaPersonagens.push({
-                    nome:personagem.name,
-                    descricao:personagem.description,
-                    imagem:`${personagem.thumbnail.path}.${personagem.thumbnail.extension}`
-                })
-            });
-            this.setState({
-                personagem:listaPersonagens[0]
-            })
-        } catch (error) {
-            console.error('erro:' + error);
-        }
+        inicializarServicos();
+        const personagem = await getPersonagem(this.state.id, this.defineFavorito);
+        this.setState({
+            personagem:personagem
+        })
     }
 
     defineFavorito = (favorito) => {
         this.setState({
-            favorito:favorito
+            isFavorito:favorito
         })
     }
 
@@ -74,21 +53,21 @@ export default class DetalhaPersonagem extends Component {
     }
 
     favoritar = () => {
-        const{favorito} = this.state;
+        const{isFavorito, id} = this.state;
         this.setState({
-            favorito:!favorito
+            isFavorito:!isFavorito
         });
-        favoritar(this.state.id);
+        favoritarPersonagem(id);
     }
   
     render() {
-        const {personagem} = this.state;
+        const {isFavorito, personagem} = this.state;
         return (
             <View style={styles.container}>
                 <Image style={styles.imagem} source={{uri:personagem.imagem}} />
                 <View style={{flexDirection:'row'}}>
                     <TouchableOpacity onPress={this.favoritar.bind(this)}>
-                        <Image style={styles.favorito} source={this.state.favorito?favorito:naoFavorito} />
+                        <Image style={styles.favorito} source={isFavorito?favorito:naoFavorito} />
                     </TouchableOpacity>
                     <Text style={styles.titulo}>{personagem.nome}</Text>
                 </View>

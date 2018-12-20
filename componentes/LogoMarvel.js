@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {
     Image,
     StyleSheet
-  } from 'react-native';
+} from 'react-native';
   
 
 export default class LogoMarvel extends Component {

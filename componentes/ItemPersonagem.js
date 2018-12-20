@@ -5,7 +5,7 @@ import {
     Text,
     Image,
     TouchableHighlight
-  } from 'react-native';
+} from 'react-native';
   
 
 export default class ItemPersonagem extends Component {

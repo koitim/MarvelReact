@@ -9,9 +9,6 @@ export function inicializeFirebase() {
 }
 
 // Autenticação
-export async function getUsuarioAtual() {
-  return await firebase.auth().currentUser;
-}
 
 export function logar(email, senha) {
   return firebase.auth().signInWithEmailAndPassword(email, senha);
@@ -68,24 +65,6 @@ export function favoritar(id){
       });
 };
 
-export function temFavoritos(){
-  const idUsuario = firebase.auth().currentUser.uid;
-  firebase
-    .database()
-    .ref()
-    .child(BD)
-    .child(idUsuario)
-    .once('value')
-      .then( function(snapshot) {
-        if (snapshot.exists()) {
-          console.log('tem favoritos');
-        } else {
-          console.log('não tem favoritos');
-        }
-        return snapshot.exists();
-      });
-};
-
 export function getFavoritos(callBackFavoritos){
   const idUsuario = firebase.auth().currentUser.uid;
   firebase
@@ -120,28 +99,6 @@ export function isFavorito(id, callBackFavorito){
         callBackFavorito(snapshot.exists());
       });
 };
-
-function encontrouPersonagem(snapshot) {
-  
-}
-
-function naoEncontrouPersonagem(snapshot) {
-  
-}
-
-export function recuperarRanking(callBack) {
-  firebase
-    .database()
-    .ref()
-    .child(BD)
-    .on('value', function(snapshot) {
-      let usuarios = [];
-      snapshot.forEach(childSnapshot => {
-          usuarios.push(childSnapshot.val());
-      });
-      callBack(usuarios);
-    })
-}
 
 function getDataAtualFormatada() {
   const data = new Date();

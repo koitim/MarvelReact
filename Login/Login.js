@@ -1,22 +1,17 @@
-import React from 'react';
+import React            from 'react';
+import {View}           from 'react-native';
+import InputCustomizado from '../componentes/InputCustomizado';
+import BotaoCustomizado from '../componentes/BotaoCustomizado';
+import LogoMarvel       from '../componentes/LogoMarvel';
+import {styles}         from './Estilos';
 import {
-  StyleSheet,
-  View
-} from 'react-native';
+  inicializarServicos,
+  entrar
+} from '../Service/Index';
 import {
   validaEmail,
   validaSenha
-} from './Funcoes'
-import {
-  inicializeFirebase,
-  logar
-} from '../Service/Firebase';
-import InputCustomizado from '../componentes/InputCustomizado';
-import BotaoCustomizado from '../componentes/BotaoCustomizado';
-import LogoMarvel from '../componentes/LogoMarvel';
-import {
-  inicializarServicos
-} from '../Service/Index'
+} from './Funcoes';
 
 export default class Login extends React.Component {
   
@@ -51,7 +46,7 @@ export default class Login extends React.Component {
       contemErros = true;
     }
     if (!contemErros) {
-      logar(email, senha)
+      entrar(email, senha)
         .then(() => {
           this.mudarTela('Marvel');
         })
@@ -94,6 +89,7 @@ export default class Login extends React.Component {
           label="Digite seu e-mail"
           value={this.state.email}
           onChange={email => this.setState({email})}
+          senha={false}
         />
         <InputCustomizado
           msgErro={this.state.msgErroSenha}
@@ -101,6 +97,7 @@ export default class Login extends React.Component {
           label="Digite sua senha"
           value={this.state.senha}
           onChange={senha => this.setState({senha})}
+          senha={true}
         />
         <BotaoCustomizado texto="Logar" onPress = {this.login.bind(this)} />
         <BotaoCustomizado texto="Cadastrar" onPress = {this.cadastrar.bind(this)} />
@@ -108,33 +105,6 @@ export default class Login extends React.Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#333',
-    padding: 20
-  },
-  input: {
-    height: 45,
-    backgroundColor: '#FFF',
-    alignSelf: 'stretch',
-    borderColor: '#EEE',
-    borderWidth: 1,
-    marginBottom: 10
-  },
-  inputError: {
-    height: 45,
-    backgroundColor: '#FFF',
-    alignSelf: 'stretch',
-    borderColor: '#F00',
-    borderWidth: 2,
-    paddingHorizontal: 20,
-    marginBottom: 10
-  }
-});
 
 const dadosIniciais = {
   email: '',
